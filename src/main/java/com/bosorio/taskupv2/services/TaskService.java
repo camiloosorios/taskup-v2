@@ -13,10 +13,10 @@ public interface TaskService {
 
     TaskDTO getTaskById(ProjectDTO projectDTO, Long id);
 
-    void updateTask(TaskDTO taskDTO);
+    void updateTask(ProjectDTO projectDTO, Long id, TaskDTO taskDTO);
 
-    void updateTaskStatus(String status, Long id);
+    void updateTaskStatus(ProjectDTO projectDTO, String status, Long id);
 
-    void deleteTask(Long id);
+    void deleteTask(ProjectDTO projectDTO, Long id);
 
 }
