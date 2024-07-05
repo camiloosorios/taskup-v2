@@ -13,7 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
+import java.util.List;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -41,7 +43,7 @@ public class ProjectControllerIntegrationTest {
                 .projectName("Test Project")
                 .clientName("Test Client")
                 .description("Test Description")
-                .tasks(Arrays.asList())
+                .tasks(List.of())
                 .build();
 
         savedProject = projectRepository.save(project);
@@ -60,7 +62,7 @@ public class ProjectControllerIntegrationTest {
                 .projectName("Test Project")
                 .clientName("Test Client")
                 .description("Test Description")
-                .tasks(Arrays.asList())
+                .tasks(List.of())
                 .build();
 
         String jsonProject = objectMapper.writeValueAsString(projectDTO);
@@ -71,6 +73,38 @@ public class ProjectControllerIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().string("Project created successfully"));
 
+    }
+
+    @Test
+    @DisplayName("Test create project without body")
+    public void createNewProjectWithoutBody() throws Exception {
+        mockMvc.perform(post(BASE_URL))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Request Body cannot be empty"));
+    }
+
+    @Test
+    @DisplayName("Test create project with blank fields")
+    public void createNewProjectWithBlankFields() throws Exception {
+        ProjectDTO projectDTO = ProjectDTO.builder()
+                .projectName("")
+                .clientName("")
+                .description("")
+                .build();
+
+        String jsonProject = objectMapper.writeValueAsString(projectDTO);
+
+        mockMvc.perform(post(BASE_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonProject))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors").isArray())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors", containsInAnyOrder(
+                        "Client Name must not be blank",
+                        "Project Name must not be blank",
+                        "Description must not be blank"
+                )));
     }
 
     @Test
@@ -100,7 +134,7 @@ public class ProjectControllerIntegrationTest {
                 .projectName("Test Project Updated")
                 .clientName("Test Client Updated")
                 .description("Test Description Updated")
-                .tasks(Arrays.asList())
+                .tasks(List.of())
                 .build();
 
         String jsonProject = objectMapper.writeValueAsString(projectDTO);
