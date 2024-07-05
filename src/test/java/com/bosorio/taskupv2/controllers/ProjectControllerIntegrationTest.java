@@ -19,7 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 public class ProjectControllerIntegrationTest {
 
     @Autowired
@@ -27,9 +26,6 @@ public class ProjectControllerIntegrationTest {
 
     @Autowired
     private ProjectRepository projectRepository;
-
-    @Autowired
-    private ProjectService projectService;
 
     private Project savedProject;
 
