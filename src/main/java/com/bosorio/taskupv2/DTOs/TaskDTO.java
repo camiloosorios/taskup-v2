@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-@ToString
 public class TaskDTO {
 
     private Long id;

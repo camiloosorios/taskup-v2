@@ -10,7 +10,6 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-@ToString
 public class ProjectDTO {
 
     private Long id;

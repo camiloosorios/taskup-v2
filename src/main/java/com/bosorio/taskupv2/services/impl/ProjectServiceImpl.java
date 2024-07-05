@@ -58,9 +58,10 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void updateProject(Long id, ProjectDTO projectDTO) {
         ProjectDTO projectToUpdate = getProjectById(id);
-        Project projectUpdated = dtoToProject(projectDTO);
         List<Task> tasks = new ArrayList<>();
+
         projectToUpdate.getTasks().forEach(taskDTO -> tasks.add(dtoToTask(taskDTO)));
+        Project projectUpdated = dtoToProject(projectDTO);
         tasks.forEach(task -> task.setProject(projectUpdated));
         projectUpdated.setId(id);
         projectUpdated.setTasks(tasks);

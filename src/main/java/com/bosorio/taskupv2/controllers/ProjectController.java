@@ -4,6 +4,7 @@ import com.bosorio.taskupv2.DTOs.ProjectDTO;
 import com.bosorio.taskupv2.Exceptions.ForbbidenException;
 import com.bosorio.taskupv2.Exceptions.NotFoundException;
 import com.bosorio.taskupv2.services.ProjectService;
+import com.bosorio.taskupv2.utils.HandlerExceptions;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.bosorio.taskupv2.utils.HandlerExceptions.handleExceptions;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -79,37 +82,13 @@ public class ProjectController {
         }
     }
 
-    private ResponseEntity<?> handleExceptions(RuntimeException e) {
-        Map<String, String> message = new HashMap<>();
-        message.put("error", e.getMessage());
-        if (e instanceof ForbbidenException) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(message);
-        } else if (e instanceof NotFoundException) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
-        } else {
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(message);
-        }
-    }
-
     @ExceptionHandler(HttpMessageNotReadableException.class)
     private ResponseEntity<?> handleEmptyBodyExceptions(HttpMessageNotReadableException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("error", "Request Body cannot be empty");
-
-        return ResponseEntity.badRequest().body(response);
+        return HandlerExceptions.handleEmptyBody();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     private ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        List<String> errors = new ArrayList<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String errorMessage = error.getDefaultMessage();
-            errors.add(errorMessage);
-        });
-        Map<String, Object> response = new HashMap<>();
-        response.put("errors", errors);
-
-        return ResponseEntity.badRequest().body(response);
+        return HandlerExceptions.handleValidations(ex);
     }
 }
