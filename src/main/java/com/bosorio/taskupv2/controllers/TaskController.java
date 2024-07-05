@@ -61,6 +61,19 @@ public class TaskController {
         }
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTask(@PathVariable Long id, @Valid @RequestBody TaskDTO taskDTO,
+                                        HttpServletRequest request) {
+        ProjectDTO projectDTO = (ProjectDTO) request.getAttribute("projectDTO");
+        try {
+            taskService.updateTask(projectDTO, id, taskDTO);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("Task updated successfully");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
     private ResponseEntity<?> handleExceptions(RuntimeException e) {
         Map<String, String> message = new HashMap<>();
         message.put("error", e.getMessage());

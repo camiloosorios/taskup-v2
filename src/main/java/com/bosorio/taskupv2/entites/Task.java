@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 @Setter
+@ToString
 public class Task {
 
     @Id

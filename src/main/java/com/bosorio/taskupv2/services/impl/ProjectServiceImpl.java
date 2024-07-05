@@ -1,19 +1,21 @@
 package com.bosorio.taskupv2.services.impl;
 
 import com.bosorio.taskupv2.DTOs.ProjectDTO;
+import com.bosorio.taskupv2.DTOs.TaskDTO;
 import com.bosorio.taskupv2.Exceptions.InternalServerErrorException;
 import com.bosorio.taskupv2.Exceptions.NotFoundException;
 import com.bosorio.taskupv2.entites.Project;
+import com.bosorio.taskupv2.entites.Task;
 import com.bosorio.taskupv2.repositories.ProjectRepository;
 import com.bosorio.taskupv2.services.ProjectService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bosorio.taskupv2.utils.ModelConverter.dtoToProject;
-import static com.bosorio.taskupv2.utils.ModelConverter.projectToDTO;
+import static com.bosorio.taskupv2.utils.ModelConverter.*;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -45,6 +47,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional
     public ProjectDTO getProjectById(Long id) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Project not found"));
@@ -54,9 +57,13 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public void updateProject(Long id, ProjectDTO projectDTO) {
-        getProjectById(id);
+        ProjectDTO projectToUpdate = getProjectById(id);
         Project projectUpdated = dtoToProject(projectDTO);
+        List<Task> tasks = new ArrayList<>();
+        projectToUpdate.getTasks().forEach(taskDTO -> tasks.add(dtoToTask(taskDTO)));
+        tasks.forEach(task -> task.setProject(projectUpdated));
         projectUpdated.setId(id);
+        projectUpdated.setTasks(tasks);
         try {
             projectRepository.save(projectUpdated);
         } catch (Exception e) {

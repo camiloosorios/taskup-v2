@@ -24,7 +24,6 @@ public class ModelConverter {
 
     public static Task dtoToTask(TaskDTO taskDTO) {
         validateStatus(taskDTO.getStatus());
-
         return Task.builder()
                 .id(taskDTO.getId())
                 .name(taskDTO.getName())
