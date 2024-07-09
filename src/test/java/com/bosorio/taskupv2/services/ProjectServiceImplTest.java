@@ -29,6 +29,7 @@ public class ProjectServiceImplTest {
     private ProjectServiceImpl projectService;
 
     private ProjectDTO projectDTO;
+
     private Project project;
 
     @BeforeEach

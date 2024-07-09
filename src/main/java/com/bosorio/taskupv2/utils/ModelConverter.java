@@ -64,13 +64,13 @@ public class ModelConverter {
                 .build();
     }
 
-    private static void validateStatus(String status) {
+    public static void validateStatus(String status) {
         if (!status.equals("pending") &&
                 !status.equals("onHold") &&
                 !status.equals("inProgress") &&
                 !status.equals("underReview") &&
                 !status.equals("completed")) {
-            throw new BadRequestException("Status not allowed");
+            throw new BadRequestException("Status not allowed " + status);
         }
     }
 }

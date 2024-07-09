@@ -11,13 +11,13 @@ import com.bosorio.taskupv2.repositories.TaskRepository;
 import com.bosorio.taskupv2.services.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bosorio.taskupv2.utils.ModelConverter.dtoToTask;
-import static com.bosorio.taskupv2.utils.ModelConverter.taskToDTO;
+import static com.bosorio.taskupv2.utils.ModelConverter.*;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -84,12 +84,34 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void updateTaskStatus(ProjectDTO projectDTO, String status, Long id) {
+    public void updateTaskStatus(ProjectDTO projectDTO, TaskDTO taskDTO, Long id) {
+        Task taskToUpdate = taskRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Task not found"));
 
+        if (projectDTO.getId() != taskToUpdate.getProject().getId()) {
+            throw new ForbbidenException("Invalid Action");
+        }
+        validateStatus(taskDTO.getStatus());
+        taskToUpdate.setStatus(taskDTO.getStatus());
+        try {
+            taskRepository.save(taskToUpdate);
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
     }
 
     @Override
     public void deleteTask(ProjectDTO projectDTO, Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("Task not found"));
 
+        if (projectDTO.getId() != task.getProject().getId()) {
+            throw new ForbbidenException("Invalid Action");
+        }
+        try {
+            taskRepository.delete(task);
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
     }
 }

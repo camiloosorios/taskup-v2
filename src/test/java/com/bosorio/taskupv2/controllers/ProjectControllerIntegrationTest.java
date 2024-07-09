@@ -49,12 +49,6 @@ public class ProjectControllerIntegrationTest {
         savedProject = projectRepository.save(project);
     }
 
-    @AfterEach
-    public void tearDown() {
-        projectRepository.deleteAll();
-    }
-
-
     @Test
     @DisplayName("Test create a new project")
     public void createNewProject() throws Exception {

@@ -77,6 +77,31 @@ public class TaskController {
         }
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateTaskStatus(@PathVariable Long id, @RequestBody TaskDTO taskDTO,
+                                              HttpServletRequest request) {
+        ProjectDTO projectDTO = (ProjectDTO) request.getAttribute("projectDTO");
+        try {
+            taskService.updateTaskStatus(projectDTO, taskDTO, id);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("Task updated successfully");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTask(@PathVariable Long id, HttpServletRequest request) {
+        ProjectDTO projectDTO = (ProjectDTO) request.getAttribute("projectDTO");
+        try {
+            taskService.deleteTask(projectDTO, id);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("Task deleted successfully");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     private ResponseEntity<?> handleEmptyBodyExceptions(HttpMessageNotReadableException ex) {
         return HandlerExceptions.handleEmptyBody();

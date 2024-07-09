@@ -15,7 +15,7 @@ public interface TaskService {
 
     void updateTask(ProjectDTO projectDTO, Long id, TaskDTO taskDTO);
 
-    void updateTaskStatus(ProjectDTO projectDTO, String status, Long id);
+    void updateTaskStatus(ProjectDTO projectDTO, TaskDTO taskDTO, Long id);
 
     void deleteTask(ProjectDTO projectDTO, Long id);
 
