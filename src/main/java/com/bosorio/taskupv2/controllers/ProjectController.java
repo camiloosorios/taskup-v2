@@ -1,8 +1,6 @@
 package com.bosorio.taskupv2.controllers;
 
 import com.bosorio.taskupv2.DTOs.ProjectDTO;
-import com.bosorio.taskupv2.Exceptions.ForbbidenException;
-import com.bosorio.taskupv2.Exceptions.NotFoundException;
 import com.bosorio.taskupv2.services.ProjectService;
 import com.bosorio.taskupv2.utils.HandlerExceptions;
 import jakarta.validation.Valid;
@@ -13,10 +11,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.bosorio.taskupv2.utils.HandlerExceptions.handleExceptions;
 

@@ -1,6 +1,5 @@
 package com.bosorio.taskupv2.controllers;
 
-import com.bosorio.taskupv2.DTOs.ProjectDTO;
 import com.bosorio.taskupv2.DTOs.TaskDTO;
 import com.bosorio.taskupv2.entites.Project;
 import com.bosorio.taskupv2.entites.Task;
