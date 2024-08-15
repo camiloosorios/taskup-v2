@@ -6,7 +6,7 @@ import com.bosorio.taskupv2.Exceptions.InternalServerErrorException;
 import com.bosorio.taskupv2.Exceptions.NotFoundException;
 import com.bosorio.taskupv2.entites.User;
 import com.bosorio.taskupv2.repositories.UserRepository;
-import com.bosorio.taskupv2.services.EmailService;
+import com.bosorio.taskupv2.services.helpers.EmailService;
 import com.bosorio.taskupv2.services.TokenService;
 import com.bosorio.taskupv2.services.UserService;
 import jakarta.transaction.Transactional;
@@ -50,6 +50,7 @@ public class UserServiceImpl implements UserService {
                 .email(userDTO.getEmail())
                 .password(encodedPassword)
                 .build();
+
         try {
             userRepository.save(user);
             String token = tokenService.create(user);
@@ -62,8 +63,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void confirmAccount(Long id) {
-        User user = userRepository.findById(id)
+    public void confirmAccount(String token) {
+        Long userId = tokenService.validate(token).getId();
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
         if (user.getConfirmed()) {
             throw new BadRequestException("User is already confirmed");
@@ -78,33 +80,50 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void login(UserDTO userDTO) {
-        if (userDTO.getEmail().trim().isEmpty() || userDTO.getPassword().trim().isEmpty()) {
-            throw new BadRequestException("Email and password are required");
+        if (userDTO.getPassword().trim().isEmpty()) {
+            throw new BadRequestException("Password is required");
         }
-        User user = userRepository.findByEmail(userDTO.getEmail())
-                .orElseThrow(() -> new BadRequestException("Email or password are incorrect"));
+        User user = getUserByEmail(userDTO);
         if(!passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
             throw new BadRequestException("Email or password are incorrect");
         }
     }
 
     @Override
-    public UserDTO getUserById(Long id) {
-        return null;
+    public void sendConfirmationCode(UserDTO userDTO) {
+        User user = getUserByEmail(userDTO);
+        if (!user.getConfirmed()) {
+            throw new BadRequestException("User is already confirmed");
+        }
+        try {
+            String token = tokenService.create(user);
+            emailService.sendConfirmationEmail(user.getEmail(), user.getName(), token);
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
     }
 
     @Override
-    public UserDTO getUserByEmail(String email) {
-        return null;
+    public void resetPassword(UserDTO userDTO) {
+        User user = getUserByEmail(userDTO);
+        try {
+            String token = tokenService.create(user);
+            emailService.sendResetPasswordEmail(user.getEmail(), user.getName(), token);
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
     }
 
     @Override
-    public void updateUser(UserDTO userDTO) {
-
+    public void validateToken(String token) {
+        tokenService.validate(token);
     }
 
-    @Override
-    public void deleteUser(Long id) {
-
+    private User getUserByEmail(UserDTO userDTO) {
+        if (userDTO.getEmail() == null || userDTO.getEmail().trim().isEmpty()) {
+            throw new BadRequestException("Email is required");
+        }
+        return userRepository.findByEmail(userDTO.getEmail())
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 }

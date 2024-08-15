@@ -31,6 +31,7 @@ public class TokenServiceImpl implements TokenService {
                 .user(user)
                 .build();
         try {
+            tokenRepository.deleteAllByExpiresAtBefore(LocalDateTime.now());
             tokenRepository.save(token);
 
             return token.getToken();
@@ -41,19 +42,25 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     @Transactional
-    public void validate(String token) {
+    public Token validate(String userToken) {
         try {
             tokenRepository.deleteAllByExpiresAtBefore(LocalDateTime.now());
         } catch (Exception e){
             throw new InternalServerErrorException(e.getMessage());
         }
-        Token tokenExist = tokenRepository.findByToken(token)
+        Token token = tokenRepository.findByToken(userToken)
                 .orElseThrow(()-> new NotFoundException("Token does not exist or is expired"));
+        delete(token);
+
+        return token;
     }
 
-    @Override
-    public void delete(String token) {
-
+    private void delete(Token token) {
+        try {
+            tokenRepository.delete(token);
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
     }
 
     private String generateToken() {

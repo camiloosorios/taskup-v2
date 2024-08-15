@@ -10,7 +10,6 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-@ToString
 public class User {
 
     @Id

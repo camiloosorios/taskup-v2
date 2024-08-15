@@ -10,6 +10,8 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 import static com.bosorio.taskupv2.utils.HandlerExceptions.handleExceptions;
 
 @RestController
@@ -34,12 +36,58 @@ public class UserController {
         }
     }
 
+    @PostMapping("/confirm-account")
+    public ResponseEntity<?> confirmAccount(@RequestBody Map<String, String> body) {
+        String token = body.get("token");
+        try {
+            userService.confirmAccount(token);
+
+            return ResponseEntity.ok().body("Account confirmed successfully");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO) {
         try {
             userService.login(userDTO);
 
             return ResponseEntity.ok().body("User logged in successfully");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
+    @PostMapping("/request-code")
+    public ResponseEntity<?> requestConfirmationCode(@RequestBody UserDTO userDTO) {
+        try {
+            userService.sendConfirmationCode(userDTO);
+
+            return ResponseEntity.ok().body("Confirmation code was sent to your email address");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody UserDTO userDTO) {
+        try {
+            userService.resetPassword(userDTO);
+
+            return ResponseEntity.ok().body("A new token was sent to your email address");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
+    @PostMapping("/validate-token")
+    public ResponseEntity<?> validateToken(@RequestBody Map<String, String> body) {
+        String token = body.get("token");
+        try {
+            userService.validateToken(token);
+
+            return ResponseEntity.ok().body("Token validated successfully");
         } catch (RuntimeException e) {
             return handleExceptions(e);
         }

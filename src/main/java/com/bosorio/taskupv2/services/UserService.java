@@ -6,15 +6,13 @@ public interface UserService {
 
     void createUser(UserDTO userDTO);
 
-    void confirmAccount(Long id);
+    void confirmAccount(String token);
 
     void login(UserDTO userDTO);
 
-    UserDTO getUserById(Long id);
+    void sendConfirmationCode(UserDTO userDTO);
 
-    UserDTO getUserByEmail(String email);
+    void resetPassword(UserDTO userDTO);
 
-    void updateUser(UserDTO userDTO);
-
-    void deleteUser(Long id);
+    void validateToken(String token);
 }
