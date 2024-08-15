@@ -6,10 +6,12 @@ import com.bosorio.taskupv2.Exceptions.InternalServerErrorException;
 import com.bosorio.taskupv2.Exceptions.NotFoundException;
 import com.bosorio.taskupv2.entites.User;
 import com.bosorio.taskupv2.repositories.UserRepository;
+import com.bosorio.taskupv2.services.EmailService;
 import com.bosorio.taskupv2.services.TokenService;
 import com.bosorio.taskupv2.services.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +24,17 @@ public class UserServiceImpl implements UserService {
 
     private final TokenService tokenService;
 
+    private final EmailService emailService;
+
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
-                           TokenService tokenService) {
+                           TokenService tokenService,
+                           EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -44,11 +50,13 @@ public class UserServiceImpl implements UserService {
                 .email(userDTO.getEmail())
                 .password(encodedPassword)
                 .build();
-
         try {
             userRepository.save(user);
             String token = tokenService.create(user);
-        } catch (Exception e) {
+            emailService.sendConfirmationEmail(user.getEmail(), user.getName(), token);
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException("Email already taken by another user");
+        }catch (Exception e) {
             throw new InternalServerErrorException(e.getMessage());
         }
     }
