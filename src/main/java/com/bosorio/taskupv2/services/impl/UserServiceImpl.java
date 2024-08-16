@@ -4,11 +4,13 @@ import com.bosorio.taskupv2.DTOs.UserDTO;
 import com.bosorio.taskupv2.Exceptions.BadRequestException;
 import com.bosorio.taskupv2.Exceptions.InternalServerErrorException;
 import com.bosorio.taskupv2.Exceptions.NotFoundException;
+import com.bosorio.taskupv2.entites.Token;
 import com.bosorio.taskupv2.entites.User;
 import com.bosorio.taskupv2.repositories.UserRepository;
 import com.bosorio.taskupv2.services.helpers.EmailService;
 import com.bosorio.taskupv2.services.TokenService;
 import com.bosorio.taskupv2.services.UserService;
+import com.bosorio.taskupv2.services.helpers.JwtService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,16 +27,18 @@ public class UserServiceImpl implements UserService {
     private final TokenService tokenService;
 
     private final EmailService emailService;
+    private final JwtService jwtService;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
                            TokenService tokenService,
-                           EmailService emailService) {
+                           EmailService emailService, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
         this.emailService = emailService;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -79,7 +83,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void login(UserDTO userDTO) {
+    public String login(UserDTO userDTO) {
         if (userDTO.getPassword().trim().isEmpty()) {
             throw new BadRequestException("Password is required");
         }
@@ -87,6 +91,8 @@ public class UserServiceImpl implements UserService {
         if(!passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
             throw new BadRequestException("Email or password are incorrect");
         }
+
+        return jwtService.generateToken(user.getId());
     }
 
     @Override
@@ -117,6 +123,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public void validateToken(String token) {
         tokenService.validate(token);
+    }
+
+    @Override
+    public void updatePassword(String token, UserDTO userDTO) {
+          if (userDTO.getPassword().trim().isEmpty() || userDTO.getPasswordConfirmation().trim().isEmpty()) {
+              throw new BadRequestException("Password is required");
+          }
+          if (!userDTO.getPassword().equals(userDTO.getPasswordConfirmation())) {
+              throw new BadRequestException("Passwords do not match");
+          }
+          Token userToken = tokenService.validate(token);
+          User user = userToken.getUser();
+          String newPassword = passwordEncoder.encode(userDTO.getPassword());
+          user.setPassword(newPassword);
+          try {
+              userRepository.save(user);
+          } catch (Exception e) {
+              throw new InternalServerErrorException(e.getMessage());
+          }
+
     }
 
     private User getUserByEmail(UserDTO userDTO) {

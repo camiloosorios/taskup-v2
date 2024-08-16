@@ -51,9 +51,9 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserDTO userDTO) {
         try {
-            userService.login(userDTO);
+            String message = userService.login(userDTO);
 
-            return ResponseEntity.ok().body("User logged in successfully");
+            return ResponseEntity.ok().body(message);
         } catch (RuntimeException e) {
             return handleExceptions(e);
         }
@@ -88,6 +88,17 @@ public class UserController {
             userService.validateToken(token);
 
             return ResponseEntity.ok().body("Token validated successfully");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
+    @PostMapping("/update-password/{token}")
+    public ResponseEntity<?> updatePassword(@PathVariable String token, @RequestBody UserDTO userDTO) {
+        try {
+            userService.updatePassword(token, userDTO);
+
+            return ResponseEntity.ok().body("Password updated successfully");
         } catch (RuntimeException e) {
             return handleExceptions(e);
         }

@@ -3,16 +3,15 @@ package com.bosorio.taskupv2.controllers;
 import com.bosorio.taskupv2.DTOs.ProjectDTO;
 import com.bosorio.taskupv2.entites.Project;
 import com.bosorio.taskupv2.repositories.ProjectRepository;
-import com.bosorio.taskupv2.services.ProjectService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;

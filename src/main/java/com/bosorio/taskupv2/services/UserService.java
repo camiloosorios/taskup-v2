@@ -8,11 +8,13 @@ public interface UserService {
 
     void confirmAccount(String token);
 
-    void login(UserDTO userDTO);
+    String login(UserDTO userDTO);
 
     void sendConfirmationCode(UserDTO userDTO);
 
     void resetPassword(UserDTO userDTO);
 
     void validateToken(String token);
+
+    void updatePassword(String token, UserDTO userDTO);
 }
