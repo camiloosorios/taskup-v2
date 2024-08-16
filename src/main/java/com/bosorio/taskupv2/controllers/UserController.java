@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -102,6 +104,23 @@ public class UserController {
         } catch (RuntimeException e) {
             return handleExceptions(e);
         }
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateProfile(@Valid @RequestBody UserDTO userDTO) {
+        Long userId = Long.valueOf(getAuthenticatedUser());
+        try {
+            userService.updateProfile(userId, userDTO);
+
+            return ResponseEntity.ok().body("Profile updated successfully");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
+    private String getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (String) authentication.getDetails();
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

@@ -19,6 +19,7 @@ public class UserDTO {
 
     @Email(regexp = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$",
             message = "Email must be well-formed")
+    @NotBlank(message = "Email can not be blank")
     private String email;
 
     @NotBlank(message = "Password can not be blank")

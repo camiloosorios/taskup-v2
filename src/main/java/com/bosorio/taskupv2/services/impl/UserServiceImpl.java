@@ -2,6 +2,7 @@ package com.bosorio.taskupv2.services.impl;
 
 import com.bosorio.taskupv2.DTOs.UserDTO;
 import com.bosorio.taskupv2.Exceptions.BadRequestException;
+import com.bosorio.taskupv2.Exceptions.ForbbidenException;
 import com.bosorio.taskupv2.Exceptions.InternalServerErrorException;
 import com.bosorio.taskupv2.Exceptions.NotFoundException;
 import com.bosorio.taskupv2.entites.Token;
@@ -143,6 +144,27 @@ public class UserServiceImpl implements UserService {
               throw new InternalServerErrorException(e.getMessage());
           }
 
+    }
+
+    @Override
+    public void updateProfile(Long id, UserDTO userDTO) {
+        if (userDTO.getId() == null || !userDTO.getId().equals(id)) {
+            throw new ForbbidenException("Action not allowed");
+        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        if (!passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
+            throw new ForbbidenException("Password incorrect");
+        }
+        user.setName(userDTO.getName());
+        user.setEmail(userDTO.getEmail());
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException("Email already taken by another user");
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
     }
 
     private User getUserByEmail(UserDTO userDTO) {

@@ -17,4 +17,6 @@ public interface UserService {
     void validateToken(String token);
 
     void updatePassword(String token, UserDTO userDTO);
+
+    void updateProfile(Long id, UserDTO userDTO);
 }
