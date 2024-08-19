@@ -14,6 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.bosorio.taskupv2.utils.HandlerExceptions.handleExceptions;
 
 @RestController
@@ -35,6 +37,28 @@ public class NoteController {
             noteService.createNote(userId, taskDTO, noteDTO);
 
             return ResponseEntity.ok().body("Note created successfully");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getNotes(@PathVariable Long taskId) {
+        try {
+            List<NoteDTO> notes = noteService.getTaskNotes(taskId);
+
+            return ResponseEntity.ok().body(notes);
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> delete(@PathVariable Long taskId) {
+        try {
+            noteService.deleteNote(taskId);
+
+            return ResponseEntity.ok().body("Note deleted successfully");
         } catch (RuntimeException e) {
             return handleExceptions(e);
         }
