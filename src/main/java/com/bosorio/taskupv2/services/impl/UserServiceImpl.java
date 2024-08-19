@@ -1,5 +1,6 @@
 package com.bosorio.taskupv2.services.impl;
 
+import com.bosorio.taskupv2.DTOs.UpdateCurrentPasswordDTO;
 import com.bosorio.taskupv2.DTOs.UserDTO;
 import com.bosorio.taskupv2.Exceptions.BadRequestException;
 import com.bosorio.taskupv2.Exceptions.ForbbidenException;
@@ -97,6 +98,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDTO getUser(Long id) {
+        User user= userRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("User not found"));
+
+        return UserDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .confirmed(user.getConfirmed())
+                .build();
+    }
+
+    @Override
     public void sendConfirmationCode(UserDTO userDTO) {
         User user = getUserByEmail(userDTO);
         if (!user.getConfirmed()) {
@@ -147,6 +161,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateCurrentPassword(Long id, UpdateCurrentPasswordDTO updateCurrentPassword) {
+        if (!updateCurrentPassword.getPassword().equals(updateCurrentPassword.getPasswordConfirmation())) {
+            throw new BadRequestException("Passwords do not match");
+        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        if (!passwordEncoder.matches(updateCurrentPassword.getPassword(), user.getPassword())) {
+            throw new BadRequestException("Current password incorrect");
+        }
+        String newPassword = passwordEncoder.encode(updateCurrentPassword.getPassword());
+        user.setPassword(newPassword);
+        try {
+            userRepository.save(user);
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
+    }
+
+    @Override
     public void updateProfile(Long id, UserDTO userDTO) {
         if (userDTO.getId() == null || !userDTO.getId().equals(id)) {
             throw new ForbbidenException("Action not allowed");
@@ -164,6 +197,15 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Email already taken by another user");
         } catch (Exception e) {
             throw new InternalServerErrorException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void checkPassword(Long id, UserDTO userDTO) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        if (!passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
+            throw new BadRequestException("Password incorrect");
         }
     }
 

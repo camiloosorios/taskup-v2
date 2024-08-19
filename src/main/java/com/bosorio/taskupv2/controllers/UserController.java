@@ -1,5 +1,6 @@
 package com.bosorio.taskupv2.controllers;
 
+import com.bosorio.taskupv2.DTOs.UpdateCurrentPasswordDTO;
 import com.bosorio.taskupv2.DTOs.UserDTO;
 import com.bosorio.taskupv2.services.UserService;
 import com.bosorio.taskupv2.utils.HandlerExceptions;
@@ -61,6 +62,18 @@ public class UserController {
         }
     }
 
+    @GetMapping("/user")
+    public ResponseEntity<?> getUser() {
+        Long userId = Long.valueOf(getAuthenticatedUser());
+        try {
+            UserDTO userDTO = userService.getUser(userId);
+
+            return ResponseEntity.ok().body(userDTO);
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
     @PostMapping("/request-code")
     public ResponseEntity<?> requestConfirmationCode(@RequestBody UserDTO userDTO) {
         try {
@@ -101,6 +114,30 @@ public class UserController {
             userService.updatePassword(token, userDTO);
 
             return ResponseEntity.ok().body("Password updated successfully");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<?> updateCurrentPassword(@Valid @RequestBody UpdateCurrentPasswordDTO updateCurrentPassword) {
+        Long userId = Long.parseLong(getAuthenticatedUser());
+        try {
+            userService.updateCurrentPassword(userId, updateCurrentPassword);
+
+            return ResponseEntity.ok().body("Password updated successfully");
+        } catch (RuntimeException e) {
+            return handleExceptions(e);
+        }
+    }
+
+    @PostMapping("/check-password")
+    public ResponseEntity<?> checkPassword(@RequestBody UserDTO userDTO) {
+        Long userId = Long.parseLong(getAuthenticatedUser());
+        try {
+            userService.checkPassword(userId, userDTO);
+
+            return ResponseEntity.ok().body("Password check successfully");
         } catch (RuntimeException e) {
             return handleExceptions(e);
         }

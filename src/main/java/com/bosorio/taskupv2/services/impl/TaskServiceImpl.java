@@ -9,6 +9,7 @@ import com.bosorio.taskupv2.entites.Project;
 import com.bosorio.taskupv2.entites.Task;
 import com.bosorio.taskupv2.repositories.TaskRepository;
 import com.bosorio.taskupv2.services.TaskService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,6 +57,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public TaskDTO getTaskById(ProjectDTO projectDTO, Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Task not found"));

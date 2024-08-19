@@ -4,13 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-@ToString
 public class TaskDTO {
 
     private Long id;
@@ -25,6 +25,8 @@ public class TaskDTO {
     private String status;
 
     private ProjectDTO project;
+
+    private List<NoteDTO> notes;
 
     private LocalDateTime createdAt;
 

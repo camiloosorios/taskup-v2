@@ -1,10 +1,14 @@
 package com.bosorio.taskupv2.utils;
 
+import com.bosorio.taskupv2.DTOs.NoteDTO;
 import com.bosorio.taskupv2.DTOs.ProjectDTO;
 import com.bosorio.taskupv2.DTOs.TaskDTO;
+import com.bosorio.taskupv2.DTOs.UserDTO;
 import com.bosorio.taskupv2.Exceptions.BadRequestException;
+import com.bosorio.taskupv2.entites.Note;
 import com.bosorio.taskupv2.entites.Project;
 import com.bosorio.taskupv2.entites.Task;
+import com.bosorio.taskupv2.entites.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +40,9 @@ public class ModelConverter {
 
     public static ProjectDTO projectToDTO(Project project) {
         List<TaskDTO> tasksDTO = new ArrayList<>();
-        project.getTasks().forEach(task -> {
-            tasksDTO.add(taskToDTO(task));
-        });
+        if (project.getTasks() != null) {
+            project.getTasks().forEach(task -> tasksDTO.add(taskToDTO(task)));
+        }
         return ProjectDTO.builder()
                 .id(project.getId())
                 .projectName(project.getProjectName())
@@ -51,9 +55,7 @@ public class ModelConverter {
     public static Project dtoToProject(ProjectDTO projectDTO) {
         List<Task> tasks = new ArrayList<>();
         if (projectDTO.getTasks() != null) {
-            projectDTO.getTasks().forEach(taskDTO -> {
-                tasks.add(dtoToTask(taskDTO));
-            });
+            projectDTO.getTasks().forEach(taskDTO -> tasks.add(dtoToTask(taskDTO)));
         }
         return Project.builder()
                 .id(projectDTO.getId())
@@ -61,6 +63,46 @@ public class ModelConverter {
                 .description(projectDTO.getDescription())
                 .clientName(projectDTO.getClientName())
                 .tasks(tasks)
+                .build();
+    }
+
+    public static UserDTO userToDTO(User user) {
+        return UserDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .confirmed(user.getConfirmed())
+                .build();
+    }
+
+    public static User dtoToUser(UserDTO userDTO) {
+        return User.builder()
+                .id(userDTO.getId())
+                .name(userDTO.getName())
+                .email(userDTO.getEmail())
+                .confirmed(userDTO.getConfirmed())
+                .build();
+    }
+
+    public static NoteDTO noteToDTO(Note note) {
+        return NoteDTO.builder()
+                .id(note.getId())
+                .content(note.getContent())
+                .createdBy(userToDTO(note.getCreatedBy()))
+                .task(taskToDTO(note.getTask()))
+                .createdAt(note.getCreatedAt())
+                .updatedAt(note.getUpdatedAt())
+                .build();
+    }
+
+    public static Note dtoToNote(NoteDTO noteDTO) {
+        return Note.builder()
+                .id(noteDTO.getId())
+                .content(noteDTO.getContent())
+                .createdBy(dtoToUser(noteDTO.getCreatedBy()))
+                .task(dtoToTask(noteDTO.getTask()))
+                .createdAt(noteDTO.getCreatedAt())
+                .updatedAt(noteDTO.getUpdatedAt())
                 .build();
     }
 
