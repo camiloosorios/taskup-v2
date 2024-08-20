@@ -19,6 +19,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static com.bosorio.taskupv2.utils.ModelConverter.userToDTO;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -102,12 +104,12 @@ public class UserServiceImpl implements UserService {
         User user= userRepository.findById(id)
                 .orElseThrow(()-> new NotFoundException("User not found"));
 
-        return UserDTO.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .confirmed(user.getConfirmed())
-                .build();
+        return userToDTO(user);
+    }
+
+    @Override
+    public UserDTO findUserByEmail(UserDTO userDTO) {
+        return userToDTO(getUserByEmail(userDTO));
     }
 
     @Override

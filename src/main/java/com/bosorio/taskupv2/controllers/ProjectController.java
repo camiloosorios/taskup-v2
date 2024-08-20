@@ -46,8 +46,9 @@ public class ProjectController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getProjectById(@PathVariable Long id) {
         try {
+            ProjectDTO projectDTO = projectService.getProjectById(id);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(projectService.getProjectById(id));
+                    .body(projectDTO);
         } catch (RuntimeException e) {
             return handleExceptions(e);
         }

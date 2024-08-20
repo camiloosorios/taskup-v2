@@ -11,7 +11,9 @@ import com.bosorio.taskupv2.entites.Task;
 import com.bosorio.taskupv2.entites.User;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ModelConverter {
     public static TaskDTO taskToDTO(Task task) {
@@ -40,8 +42,12 @@ public class ModelConverter {
 
     public static ProjectDTO projectToDTO(Project project) {
         List<TaskDTO> tasksDTO = new ArrayList<>();
+        Set<UserDTO> membersDTO = new HashSet<>();
         if (project.getTasks() != null) {
             project.getTasks().forEach(task -> tasksDTO.add(taskToDTO(task)));
+        }
+        if (project.getMembers() != null) {
+            project.getMembers().forEach(member -> membersDTO.add(userToDTO(member)));
         }
         return ProjectDTO.builder()
                 .id(project.getId())
@@ -49,13 +55,19 @@ public class ModelConverter {
                 .description(project.getDescription())
                 .clientName(project.getClientName())
                 .tasks(tasksDTO)
+                .manager(userToDTO(project.getManager()))
+                .members(membersDTO)
                 .build();
     }
 
     public static Project dtoToProject(ProjectDTO projectDTO) {
         List<Task> tasks = new ArrayList<>();
+        Set<User> members = new HashSet<>();
         if (projectDTO.getTasks() != null) {
             projectDTO.getTasks().forEach(taskDTO -> tasks.add(dtoToTask(taskDTO)));
+        }
+        if (projectDTO.getMembers() != null) {
+            projectDTO.getMembers().forEach(membersDto -> members.add(dtoToUser(membersDto)));
         }
         return Project.builder()
                 .id(projectDTO.getId())
@@ -63,6 +75,8 @@ public class ModelConverter {
                 .description(projectDTO.getDescription())
                 .clientName(projectDTO.getClientName())
                 .tasks(tasks)
+                .manager(dtoToUser(projectDTO.getManager()))
+                .members(members)
                 .build();
     }
 

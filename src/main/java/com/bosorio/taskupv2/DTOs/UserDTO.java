@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.Length;
 @Builder
 @Getter
 @Setter
+@ToString
 public class UserDTO {
 
     private Long id;

@@ -3,8 +3,10 @@ package com.bosorio.taskupv2.controllers;
 import com.bosorio.taskupv2.DTOs.TaskDTO;
 import com.bosorio.taskupv2.entites.Project;
 import com.bosorio.taskupv2.entites.Task;
+import com.bosorio.taskupv2.entites.User;
 import com.bosorio.taskupv2.repositories.ProjectRepository;
 import com.bosorio.taskupv2.repositories.TaskRepository;
+import com.bosorio.taskupv2.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static com.bosorio.taskupv2.utils.ModelConverter.projectToDTO;
@@ -35,6 +38,9 @@ public class TaskControllerIntegrationTest {
     private ProjectRepository projectRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     private final String BASE_URL = "/api/projects";
@@ -43,16 +49,30 @@ public class TaskControllerIntegrationTest {
 
     private Project savedProject;
 
+    private User savedUser;
+
     @BeforeEach
     public void setUp() {
         taskRepository.deleteAll();
         projectRepository.deleteAll();
+        userRepository.deleteAll();
+
+        User user = User.builder()
+                .name("John Doe")
+                .email("email@email.com")
+                .confirmed(true)
+                .password("abc123")
+                .build();
+
+        savedUser = userRepository.save(user);
 
         Project project = Project.builder()
                 .projectName("Test Project")
                 .clientName("Test Client")
                 .description("Test Description")
                 .tasks(List.of())
+                .manager(savedUser)
+                .members(new HashSet<>())
                 .build();
 
         savedProject = projectRepository.save(project);

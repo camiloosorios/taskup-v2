@@ -27,7 +27,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(projectExistInterceptor).addPathPatterns("/api/projects/{projectId}/tasks/**");
+        registry.addInterceptor(projectExistInterceptor).addPathPatterns("/api/projects/{projectId}/**");
         registry.addInterceptor(taskExistInterceptor).addPathPatterns("/api/projects/{projectId}/tasks/{taskId}/notes/**");
     }
 

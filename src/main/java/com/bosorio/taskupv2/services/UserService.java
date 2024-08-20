@@ -13,6 +13,8 @@ public interface UserService {
 
     UserDTO getUser(Long id);
 
+    UserDTO findUserByEmail(UserDTO userDTO);
+
     void sendConfirmationCode(UserDTO userDTO);
 
     void resetPassword(UserDTO userDTO);

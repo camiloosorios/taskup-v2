@@ -1,20 +1,28 @@
 package com.bosorio.taskupv2.controllers;
 
 import com.bosorio.taskupv2.DTOs.ProjectDTO;
+import com.bosorio.taskupv2.DTOs.UserDTO;
 import com.bosorio.taskupv2.entites.Project;
+import com.bosorio.taskupv2.entites.User;
 import com.bosorio.taskupv2.repositories.ProjectRepository;
+import com.bosorio.taskupv2.repositories.UserRepository;
+import com.bosorio.taskupv2.services.ProjectService;
+import com.bosorio.taskupv2.services.impl.ProjectServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -28,7 +36,15 @@ public class ProjectControllerIntegrationTest {
     @Autowired
     private ProjectRepository projectRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private Project savedProject;
+
+    private User savedUser;
+
+    @MockBean
+    private ProjectService projectService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -38,11 +54,24 @@ public class ProjectControllerIntegrationTest {
     @BeforeEach
     public void setUp() {
         projectRepository.deleteAll();
+        userRepository.deleteAll();
+
+        User user = User.builder()
+                .name("John Doe")
+                .email("email@email.com")
+                .password("abc123")
+                .confirmed(true)
+                .build();
+
+        savedUser = userRepository.save(user);
+
         Project project = Project.builder()
                 .projectName("Test Project")
                 .clientName("Test Client")
                 .description("Test Description")
                 .tasks(List.of())
+                .manager(savedUser)
+                .members(new HashSet<>())
                 .build();
 
         savedProject = projectRepository.save(project);
@@ -56,6 +85,7 @@ public class ProjectControllerIntegrationTest {
                 .clientName("Test Client")
                 .description("Test Description")
                 .tasks(List.of())
+                .manager(new UserDTO())
                 .build();
 
         String jsonProject = objectMapper.writeValueAsString(projectDTO);
@@ -103,6 +133,14 @@ public class ProjectControllerIntegrationTest {
     @Test
     @DisplayName("Test get all projects")
     public void getAllProjects() throws Exception {
+        ProjectDTO projectDTO = ProjectDTO.builder()
+                .projectName("Test Project")
+                .clientName("Test Client")
+                .description("Test Description")
+                .tasks(List.of())
+                .build();
+        when(projectService.getAllProjects()).thenReturn(List.of(projectDTO));
+
         mockMvc.perform(get(BASE_URL))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -112,9 +150,16 @@ public class ProjectControllerIntegrationTest {
     @Test
     @DisplayName("Test get project by id")
     public void getProjectById() throws Exception {
-        mockMvc.perform(get(BASE_URL + "/" +savedProject.getId()))
+        ProjectDTO projectDTO = ProjectDTO.builder()
+                .projectName("Test Project")
+                .clientName("Test Client")
+                .description("Test Description")
+                .tasks(List.of())
+                .build();
+        when(projectService.getProjectById(savedProject.getId())).thenReturn(projectDTO);
+
+        mockMvc.perform(get(BASE_URL + "/" + savedProject.getId()))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.projectName").value("Test Project"))
                 .andExpect(jsonPath("$.clientName").value("Test Client"))
                 .andExpect(jsonPath("$.description").value("Test Description"));

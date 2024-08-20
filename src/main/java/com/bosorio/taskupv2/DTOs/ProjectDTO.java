@@ -4,12 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
+@ToString
 public class ProjectDTO {
 
     private Long id;
@@ -24,5 +26,9 @@ public class ProjectDTO {
     private String description;
 
     private List<TaskDTO> tasks;
+
+    private UserDTO manager;
+
+    private Set<UserDTO> members;
 
 }
